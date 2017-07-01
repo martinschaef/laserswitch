@@ -6,12 +6,25 @@ import os, sys
 import cv2
 import imutils
 import numpy
+import hue_controls
+from time import sleep
 
 color = numpy.uint8([[[250,255,0 ]]])
 print cv2.cvtColor(numpy.uint8([[[50,50,100 ]]]),cv2.COLOR_BGR2HSV)
 print cv2.cvtColor(numpy.uint8([[[200,200,255 ]]]),cv2.COLOR_BGR2HSV)
 #sys.exit(1)
 
+
+trigger_image = cv2.imread("triggers.png")
+trigger_x_dim, trigger_y_dim, channels = trigger_image.shape
+print trigger_x_dim
+trigger_actions = [ {"bgr_color" : (0,38,255), 
+                     "device": "Tripod Lampe",
+                     "counter": 0,"on": False},
+                    {"bgr_color" : (255,51,4), 
+                     "device": "Decke1",
+                     "counter": 0,
+                     "on": False}]
 
 redLower = (0, 55, 240) # in hsv
 redUpper = (10, 130, 255) # in hsv
@@ -56,17 +69,43 @@ while cam_readable:
         if radius > 2 and radius < 10:
             # draw the circle and centroid on the frame,
             # then update the list of tracked points
-            cv2.circle(frame, (int(x), int(y)), int(radius),
+            cv2.circle(hsv, (int(x), int(y)), int(radius),
                 (0, 255, 255), 2)
-            cv2.circle(frame, center, 5, (0, 0, 255), -1)
+            cv2.circle(hsv, center, 5, (0, 0, 255), -1)
  
-    
-    cv2.imshow("preview", frame)
+            
+            px = int(x)
+            py = int(y)
+
+
+            #print "{}\t{}\t{} ".format(px, py, trigger_image[py,px])
+            if px<trigger_x_dim and py<trigger_y_dim:                
+                for trigger in trigger_actions:
+                    is_triggered = False
+                    b,g,r = trigger["bgr_color"]
+                    if trigger_image[py,px,0] == b:
+                        if trigger_image[py, px,1] == g:
+                            if trigger_image[py, px,2] == r:
+                                if trigger["counter"]>2:
+                                    trigger['on']=not trigger['on']
+                                    light = hue_controls.get_light_by_name(trigger["device"])
+                                    hue_controls.toggle_light(light, trigger['on'])
+                                    trigger["counter"]=0
+                                    sleep(2)
+                                else:
+                                    trigger["counter"]+=1
+                                is_triggered = True
+
+                    if is_triggered == False: 
+                        trigger["counter"]=0                    
+                                
+
+    cv2.imshow("preview", hsv)
     cv2.imshow("mask", mask)
 
     key = cv2.waitKey(200)
     if key == 27: # exit on ESC
-        cv2.imwrite("frame.png", hsv )
+        cv2.imwrite("frame.png", frame )
         break
 
 cv2.destroyWindow("preview")
