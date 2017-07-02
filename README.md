@@ -28,7 +28,8 @@ If you don't have this information, follow [these instructions](https://github.c
 Start the program with `python find_laser.py`. This will open two windows; one containing the HSV camera view and one containng the masked camera view which should be completely black and only have a white spot where the laster is detected.
 Leave the program with ESC. This closes the window and writes a file `frame.png` to disk. 
 
-Edit the `frame.png` by turning it into a grey-scale image and mark the areas with Hue lights in different colors like in [this image](https://github.com/martinschaef/laserswitch/blob/master/triggers.png), and safe the image as `triggers.png`. Now update the `trigger_actions` in [line 21 of find_laser.py](https://github.com/martinschaef/laserswitch/blob/master/find_laser.py#L21) accordingly, and you should be good to go.
+Edit the `frame.png` by turning it into a grey-scale image and mark the areas with Hue lights in different colors like in [this image](https://github.com/martinschaef/laserswitch/blob/master/triggers.png), and safe the image as `triggers.png`. Now update the `trigger_actions` in [line 21 of find_laser.py](https://github.com/martinschaef/laserswitch/blob/master/find_laser.py#L21) accordingly, and you should be good to go:
+Just run `python find_laser.py` again and try to touch the regions marked in `triggers.png` with the laser. 
 
 ### Knwon Issues
 
